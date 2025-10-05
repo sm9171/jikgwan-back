@@ -23,11 +23,11 @@ class JwtTokenProvider(
         val validity = Date(now.time + accessTokenValidity)
 
         return Jwts.builder()
-            .setSubject(userId.toString())
+            .subject(userId.toString())
             .claim("email", email)
-            .setIssuedAt(now)
-            .setExpiration(validity)
-            .signWith(key, SignatureAlgorithm.HS256)
+            .issuedAt(now)
+            .expiration(validity)
+            .signWith(key)
             .compact()
     }
 
@@ -36,10 +36,10 @@ class JwtTokenProvider(
         val validity = Date(now.time + refreshTokenValidity)
 
         return Jwts.builder()
-            .setSubject(userId.toString())
-            .setIssuedAt(now)
-            .setExpiration(validity)
-            .signWith(key, SignatureAlgorithm.HS256)
+            .subject(userId.toString())
+            .issuedAt(now)
+            .expiration(validity)
+            .signWith(key)
             .compact()
     }
 
@@ -60,10 +60,10 @@ class JwtTokenProvider(
     }
 
     private fun parseClaims(token: String): Claims {
-        return Jwts.parserBuilder()
-            .setSigningKey(key)
+        return Jwts.parser()
+            .verifyWith(key)
             .build()
-            .parseClaimsJws(token)
-            .body
+            .parseSignedClaims(token)
+            .payload
     }
 }
