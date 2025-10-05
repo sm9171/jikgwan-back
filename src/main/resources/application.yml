@@ -2,19 +2,10 @@ spring:
   application:
     name: jikgwan-api
 
-  datasource:
-    url: jdbc:mysql://localhost:3306/jikgwan?useUnicode=true&characterEncoding=utf8
-    username: ${DB_USERNAME:jikgwan_user}
-    password: ${DB_PASSWORD:jikgwan_pass}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 30000
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
   jpa:
-    hibernate:
-      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
@@ -23,11 +14,6 @@ spring:
           batch_size: 50
     show-sql: false
     open-in-view: false
-
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
 
   servlet:
     multipart:
