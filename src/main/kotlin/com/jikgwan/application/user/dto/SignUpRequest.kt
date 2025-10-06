@@ -1,6 +1,7 @@
 package com.jikgwan.application.user.dto
 
 import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
 data class SignUpRequest(
@@ -11,5 +12,11 @@ data class SignUpRequest(
     val password: String,
 
     @field:Size(min = 2, max = 20, message = "닉네임은 2-20자 사이여야 합니다")
-    val nickname: String
+    val nickname: String,
+
+    @field:NotBlank(message = "성별을 선택해주세요")
+    val gender: String,
+
+    @field:NotBlank(message = "연령대를 선택해주세요")
+    val ageRange: String
 )

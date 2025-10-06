@@ -53,7 +53,7 @@ class UserEntity(
 
 @Embeddable
 class ProfileEmbeddable(
-    val profileImageUrl: String?,
+    val profileImageUrl: String? = null,
 
     @Enumerated(EnumType.STRING)
     val gender: Gender,
@@ -68,7 +68,7 @@ class ProfileEmbeddable(
     )
     @Enumerated(EnumType.STRING)
     @Column(name = "team")
-    val supportingTeams: Set<Team>
+    val supportingTeams: Set<Team> = emptySet()
 ) {
     fun toDomain(): Profile = Profile(
         profileImage = profileImageUrl?.let { ProfileImage(it) },

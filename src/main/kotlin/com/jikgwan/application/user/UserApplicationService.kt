@@ -23,11 +23,19 @@ class UserApplicationService(
             throw BusinessException(ErrorCode.DUPLICATE_EMAIL)
         }
 
+        val profile = Profile(
+            profileImage = null,
+            gender = Gender.valueOf(request.gender),
+            ageRange = AgeRange.valueOf(request.ageRange),
+            supportingTeams = emptySet()
+        )
+
         val user = User(
             id = UserId(0),
             email = Email(request.email),
             password = Password.encode(request.password, passwordEncoder),
-            nickname = Nickname(request.nickname)
+            nickname = Nickname(request.nickname),
+            profile = profile
         )
 
         val savedUser = userPort.save(user)
@@ -54,5 +62,13 @@ class UserApplicationService(
             accessToken = accessToken,
             refreshToken = refreshToken
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getMyInfo(userId: Long): UserResponse {
+        val user = userPort.findById(UserId(userId))
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+
+        return UserResponse.from(user)
     }
 }
