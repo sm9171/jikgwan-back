@@ -5,6 +5,7 @@ import com.jikgwan.application.user.port.out.UserPort
 import com.jikgwan.common.exception.BusinessException
 import com.jikgwan.common.exception.ErrorCode
 import com.jikgwan.common.security.JwtTokenProvider
+import com.jikgwan.common.storage.FileStorage
 import com.jikgwan.domain.user.*
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -15,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional
 class UserApplicationService(
     private val userPort: UserPort,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
+    private val fileStorage: FileStorage
 ) {
 
     fun signUp(request: SignUpRequest): UserResponse {
@@ -23,11 +25,16 @@ class UserApplicationService(
             throw BusinessException(ErrorCode.DUPLICATE_EMAIL)
         }
 
+        // 프로필 이미지 업로드
+        val profileImageUrl = request.profileImage?.let { image ->
+            fileStorage.upload(image, "profiles")
+        }
+
         val profile = Profile(
-            profileImage = null,
+            profileImage = profileImageUrl?.let { ProfileImage(it) },
             gender = Gender.valueOf(request.gender),
             ageRange = AgeRange.valueOf(request.ageRange),
-            supportingTeams = emptySet()
+            supportingTeams = request.supportingTeams.map { Team.valueOf(it) }.toSet()
         )
 
         val user = User(

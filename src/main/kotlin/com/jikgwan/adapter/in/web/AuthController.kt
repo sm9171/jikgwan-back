@@ -17,10 +17,10 @@ class AuthController(
     private val userApplicationService: UserApplicationService
 ) {
 
-    @PostMapping("/signup")
+    @PostMapping("/signup", consumes = ["multipart/form-data"])
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다")
     fun signUp(
-        @Valid @RequestBody request: SignUpRequest
+        @Valid @ModelAttribute request: SignUpRequest
     ): ResponseEntity<ApiResponse<UserResponse>> {
         val user = userApplicationService.signUp(request)
         return ResponseEntity

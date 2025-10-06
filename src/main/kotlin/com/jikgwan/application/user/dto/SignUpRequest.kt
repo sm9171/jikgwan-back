@@ -2,7 +2,9 @@ package com.jikgwan.application.user.dto
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
+import org.springframework.web.multipart.MultipartFile
 
 data class SignUpRequest(
     @field:Email(message = "올바른 이메일 형식이 아닙니다")
@@ -18,5 +20,10 @@ data class SignUpRequest(
     val gender: String,
 
     @field:NotBlank(message = "연령대를 선택해주세요")
-    val ageRange: String
+    val ageRange: String,
+
+    @field:NotEmpty(message = "응원하는 팀을 최소 1개 이상 선택해주세요")
+    val supportingTeams: Set<String>,
+
+    val profileImage: MultipartFile? = null
 )
