@@ -12,16 +12,22 @@ data class GatheringResponse(
     val maxParticipants: Int,
     val description: String,
     val host: HostInfoResponse,
+    val participants: List<GatheringParticipantInfo>,
     val createdAt: LocalDateTime
 ) {
     companion object {
-        fun from(gathering: Gathering, host: User) = GatheringResponse(
+        fun from(
+            gathering: Gathering,
+            host: User,
+            participants: List<GatheringParticipantInfo> = emptyList()
+        ) = GatheringResponse(
             id = gathering.id.value,
             gameInfo = GameInfoResponse.from(gathering.gameInfo),
             meetingPlace = gathering.meetingPlace.value,
             maxParticipants = gathering.maxParticipants,
             description = gathering.description,
             host = HostInfoResponse.from(host),
+            participants = participants,
             createdAt = gathering.createdAt
         )
     }
@@ -57,6 +63,18 @@ data class HostInfoResponse(
             profileImageUrl = user.profile?.profileImage?.value,
             gender = user.profile?.gender?.name,
             ageRange = user.profile?.ageRange?.name
+        )
+    }
+}
+
+data class GatheringParticipantInfo(
+    val userId: Long,
+    val profileImageUrl: String?
+) {
+    companion object {
+        fun from(user: User) = GatheringParticipantInfo(
+            userId = user.id.value,
+            profileImageUrl = user.profile?.profileImage?.value
         )
     }
 }

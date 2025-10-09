@@ -44,4 +44,41 @@ data class Gathering(
         description = description ?: this.description,
         updatedAt = LocalDateTime.now()
     )
+
+    fun canAddParticipant(currentParticipantCount: Int): Boolean =
+        currentParticipantCount < maxParticipants
+
+    fun validateParticipantAddition(
+        requesterId: UserId,
+        applicantId: UserId,
+        currentParticipantCount: Int
+    ) {
+        require(isHostedBy(requesterId)) {
+            "모임 호스트만 참여자를 추가할 수 있습니다"
+        }
+        require(hostId != applicantId) {
+            "호스트는 참여자로 추가할 수 없습니다"
+        }
+        require(canAddParticipant(currentParticipantCount)) {
+            "최대 참여 인원을 초과했습니다"
+        }
+        require(status == GatheringStatus.ACTIVE) {
+            "활성 상태의 모임만 참여자를 추가할 수 있습니다"
+        }
+    }
+
+    fun validateParticipantCancellation(
+        requesterId: UserId,
+        participantId: UserId
+    ) {
+        require(isHostedBy(requesterId)) {
+            "모임 호스트만 참여자를 취소할 수 있습니다"
+        }
+        require(hostId != participantId) {
+            "호스트는 취소할 수 없습니다"
+        }
+        require(status == GatheringStatus.ACTIVE) {
+            "활성 상태의 모임만 참여자를 취소할 수 있습니다"
+        }
+    }
 }
