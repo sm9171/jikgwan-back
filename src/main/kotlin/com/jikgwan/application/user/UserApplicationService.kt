@@ -1,5 +1,6 @@
 package com.jikgwan.application.user
 
+import com.jikgwan.adapter.out.cache.TokenBlacklistService
 import com.jikgwan.application.user.dto.*
 import com.jikgwan.application.user.port.out.UserPort
 import com.jikgwan.common.exception.BusinessException
@@ -17,7 +18,8 @@ class UserApplicationService(
     private val userPort: UserPort,
     private val passwordEncoder: PasswordEncoder,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val fileStorage: FileStorage
+    private val fileStorage: FileStorage,
+    private val tokenBlacklistService: TokenBlacklistService
 ) {
 
     fun signUp(request: SignUpRequest): UserResponse {
@@ -77,5 +79,26 @@ class UserApplicationService(
             ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
 
         return UserResponse.from(user)
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserDetail(userId: Long): UserDetailResponse {
+        val user = userPort.findById(UserId(userId))
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+
+        return UserDetailResponse.from(user)
+    }
+
+    fun logout(token: String) {
+        // 1. 토큰 유효성 검증
+        require(jwtTokenProvider.validateToken(token)) {
+            throw BusinessException(ErrorCode.INVALID_TOKEN)
+        }
+
+        // 2. 토큰 만료 시간 계산
+        val expirationSeconds = jwtTokenProvider.getExpirationSeconds(token)
+
+        // 3. Redis 블랙리스트에 추가
+        tokenBlacklistService.addToBlacklist(token, expirationSeconds)
     }
 }
