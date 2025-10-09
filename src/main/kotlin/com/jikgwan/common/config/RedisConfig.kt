@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Primary
 import org.springframework.data.redis.cache.RedisCacheConfiguration
 import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
@@ -21,6 +22,19 @@ import java.time.Duration
 class RedisConfig {
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    /**
+     * RedisTemplate 빈 등록 (토큰 블랙리스트 등에 사용)
+     */
+    @Bean
+    @ConditionalOnProperty(name = ["spring.data.redis.host"])
+    fun redisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, String> {
+        val template = RedisTemplate<String, String>()
+        template.connectionFactory = connectionFactory
+        template.keySerializer = StringRedisSerializer()
+        template.valueSerializer = StringRedisSerializer()
+        return template
+    }
 
     /**
      * Redis가 사용 가능할 때 사용되는 CacheManager
