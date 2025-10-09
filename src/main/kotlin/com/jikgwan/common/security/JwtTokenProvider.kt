@@ -59,6 +59,13 @@ class JwtTokenProvider(
         }
     }
 
+    fun getExpirationSeconds(token: String): Long {
+        val claims = parseClaims(token)
+        val expiration = claims.expiration
+        val now = Date()
+        return (expiration.time - now.time) / 1000
+    }
+
     private fun parseClaims(token: String): Claims {
         return Jwts.parser()
             .verifyWith(key)

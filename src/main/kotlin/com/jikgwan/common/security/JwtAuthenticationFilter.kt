@@ -1,5 +1,6 @@
 package com.jikgwan.common.security
 
+import com.jikgwan.adapter.out.cache.TokenBlacklistService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -10,7 +11,8 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthenticationFilter(
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
+    private val tokenBlacklistService: TokenBlacklistService
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -21,15 +23,18 @@ class JwtAuthenticationFilter(
         val token = extractToken(request)
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            val userId = jwtTokenProvider.getUserIdFromToken(token)
+            // 블랙리스트 체크
+            if (!tokenBlacklistService.isBlacklisted(token)) {
+                val userId = jwtTokenProvider.getUserIdFromToken(token)
 
-            val authentication = UsernamePasswordAuthenticationToken(
-                userId.toString(),
-                null,
-                emptyList()
-            )
+                val authentication = UsernamePasswordAuthenticationToken(
+                    userId.toString(),
+                    null,
+                    emptyList()
+                )
 
-            SecurityContextHolder.getContext().authentication = authentication
+                SecurityContextHolder.getContext().authentication = authentication
+            }
         }
 
         filterChain.doFilter(request, response)

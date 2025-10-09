@@ -25,9 +25,11 @@ class SecurityConfig(
             }
             .authorizeHttpRequests {
                 it.requestMatchers("/api/auth/**").permitAll()
-                  .requestMatchers("/api/gatherings", "/api/gatherings/*").permitAll()
+                  .requestMatchers("/api/gatherings", "/api/gatherings/**").permitAll()
                   .requestMatchers("/ws/**").permitAll()
                   .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                  .requestMatchers("/files/**").permitAll()
+                  .requestMatchers("/api/chat/**").authenticated()
                   .anyRequest().authenticated()
             }
             .addFilterBefore(

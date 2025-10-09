@@ -36,4 +36,14 @@ class AuthController(
         val token = userApplicationService.login(request)
         return ResponseEntity.ok(ApiResponse.success(token))
     }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "JWT 토큰을 무효화합니다")
+    fun logout(
+        @RequestHeader("Authorization") authorization: String
+    ): ResponseEntity<ApiResponse<Unit>> {
+        val token = authorization.removePrefix("Bearer ")
+        userApplicationService.logout(token)
+        return ResponseEntity.ok(ApiResponse.success(Unit))
+    }
 }
